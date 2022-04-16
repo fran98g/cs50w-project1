@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+
+{% block title  %}
+    BOOK
+{% endblock %}
+
+{% block body %}
+
+    <div class="card text-dark bg-caution mb-3" style="max-width: 18rem;">
+        <img class="card-img-top" src=".../100px180/?text=Image cap">
+        <div class="card-body">
+            <h5 class="card-title">Title: {{book.title}}</h5>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">Author: {{book.author}}</li>
+            <li class="list-group-item">Year: {{book.year}}</li>
+            <li class="list-group-item">ISBN: {{book.isbn}}</li>
+        </ul>
+        <form method="post" class="review" action="/review">
+            <div>
+                <label for="title">Review</label>
+                <input type="text" class="form-control" name="review">
+            </div>
+            <div>
+                <button type="submit">Review</button>
+            </div>
+            <input type="hidden" id="libro" name="libro" value="{{book.isbn}}">
+            <div class="form-group">
+                <label for="FormControlSelect1">Puntuacion~</label>
+                <select class="form-control" id="FormControlSelect1" name="star">
+                  <option>1</option>
+                  <option>2</option>
+                  <option>3</option>
+                  <option>4</option>
+                  <option>5</option>
+                </select>
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Puntaje</button>
+            </div>
+        </form>
+        <div class="reviews">
+            <div class="card-body">
+                {%for review in review%}
+                <li>{{ review.review }}</li>
+                {% else %}
+                <li>No reviews.</li>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+

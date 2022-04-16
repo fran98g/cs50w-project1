@@ -1,0 +1,58 @@
+header {
+    position: sticky;
+    top: 0;
+}
+
+.texto {
+    font-family:'Times New Roman', Times, serif;
+    color:white;
+    font-size:20px;
+}
+
+body {
+    background-image: url('https://res.cloudinary.com/masita/image/upload/v1649919576/project1/87566235d2a505e8af64544609c54db4_kmdmsi.gif');
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    color:white;
+}
+
+#uno {
+    position: relative;
+    top: 0px;
+    left: 0px;
+    animation: animar   5s infinite;
+}
+
+@keyframes animar {
+    0% {
+        left: 5%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+main .form-control
+{
+    /* center form controls */
+    display: inline-block;
+
+    /* override Bootstrap's 100% width for form controls */
+    width: auto;
+}
+
+main
+{
+    /* scroll horizontally as needed */
+    overflow-x: auto;
+
+    /* center contents */
+    text-align: center;
+}
+
+main img
+{
+    /* constrain images on small screens */
+    max-width: 100%;
+}
