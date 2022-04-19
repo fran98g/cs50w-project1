@@ -7,6 +7,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from sqlalchemy import FetchedValue, create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from helpers import *
+import json
+import requests
 
 app = Flask(__name__)
 
@@ -86,53 +88,33 @@ def reviews():
     db.commit()
     return redirect("/book?isbn="+libro)
 
-@app.route("/api/<string:isbn>", methods=["GET"])
+@app.route("/api", methods=["GET"])
 @login_required
-def book_api(isbn):
-    #isbn = input('write isbn')
-    #url = f'https://www.googleapis.com/books/v1/volumes?q=isbn:'{isbn}
-    #r = request.get(url)
+def book_api():
+    #url = f'https://www.googleapis.com/books/v1/volumes?q='+isbn
+    #r = requests.get(url)
     #data = json.loads(r.text)
-    #api_list = []
-    #for api in data:
-    #    title = api['title']
-    #    author = api['author']
-    #    year = api['year']
-    #    isbn = api['isbn']
-    #    review_count = api['review_count']
-    #    average_score = api['average_score']
 
-    #    api_data = {
-    #        "title": title,
-    #        "author": author,
-    #        "year": year,
-    #        "isbn": isbn,
-    #        "review_count": review_count,
-    #        "average_score": average_score,
-    #    }
-    #    api_list.append(api_data)
-    #print(api_list)
+    isbn = request.args.get("isbn")    
 
-    """Return details about a single book."""
-    #api = request.args.get("isbn")
-    # Make sure book exists.
-    #api = db.execute("SELECT * FROM books WHERE api LIKE :isbn", {"api": api}).fetchone()
-    #if api is None:
-    #    return jsonify({"error": "isbn del libro es invalido"}), 422
+    api = db.execute("SELECT * FROM books WHERE isbn =:isbn", {"isbn":isbn}).fetchone()
+    id_books = api["id_books"]
 
-    # Get all information
-    #review = "{{book.review}}"
-    #isbn = []
-    #for review in reviews:
-    #    review.append(reviews.review)
-    #return jsonify({
-    #    "title": books.title,
-    #    "author": books.author,
-    #    "year": books.year,
-    #    "isbn": books.isbn,
-    #    "review_count": reviews.review,
-    #    "average_score": reviews.star,
-    #}),200
+    if api == None:
+        return jsonify({"error": "isbn del libro es invalido"}),422
+
+    reviews = db.execute("SELECT COUNT(review) AS conteo FROM review WHERE id_books =:id_books", {"id_books":id_books}).fetchone()
+    score = db.execute("SELECT SUM(star) AS suma FROM review WHERE id_books =:id_books", {"id_books":id_books}).fetchone()
+    print(reviews)
+    print(score)
+    return jsonify({
+        "title" : api["title"],
+        "author": api["author"],
+        "year": api["year"],
+        "isbn": api["isbn"],
+        "review_count": reviews["conteo"],
+        "average_score": score["suma"],
+    }),200
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
