@@ -9,6 +9,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from helpers import *
 import json
 import requests
+from googler import consultar_libro
 
 app = Flask(__name__)
 
@@ -62,8 +63,10 @@ def book():
     rows2 = db.execute("SELECT * FROM books WHERE isbn =:isbn", {"isbn":isbn}).fetchone()
     libroo = rows2[0]
     review = request.args.get("review")
+    review2 = consultar_libro(request.args.get("isbn"))    
+    rating2 = consultar_libro(request.args.get("isbn"))
     rows3 = db.execute("SELECT * FROM review WHERE id_books =:libroo", {"libroo":libroo}).fetchall()
-    return render_template("book.html", book=rows2, review=rows3)
+    return render_template("book.html", book=rows2, review=rows3, review2=review2, rating2=rating2)
 
 
 @app.route("/review", methods=["POST"])
@@ -72,11 +75,9 @@ def reviews():
     star = request.form.get("star")
     review = request.form.get("review")
     libro = request.form.get("libro")
-    print(libro)
     libro_obj=db.execute("SELECT * FROM books WHERE isbn =:libro", {"libro":libro}).fetchone()
     id_books = libro_obj["id_books"]
     id_user = session["user_id"]
-    print(id_user+1)
     username = db.execute("SELECT username FROM users WHERE id_username =:id_username", {"id_username":id_user}).fetchone()
     rows4 = db.execute("INSERT INTO review (id_user, id_books, review, star, username) VALUES (:id_user, :id_books, :review, :star, :username)", {
         "id_user":f"{id_user}",
@@ -104,17 +105,26 @@ def book_api():
         return jsonify({"error": "isbn del libro es invalido"}),422
 
     reviews = db.execute("SELECT COUNT(review) AS conteo FROM review WHERE id_books =:id_books", {"id_books":id_books}).fetchone()
+    if reviews["conteo"] == None:
+        reviews["conteo"] = 0
+    divisor = 1
+    if reviews["conteo"] != 0:
+        divisor = reviews["conteo"]
+
     score = db.execute("SELECT SUM(star) AS suma FROM review WHERE id_books =:id_books", {"id_books":id_books}).fetchone()
-    print(reviews)
-    print(score)
+    suma = 0
+    if score["suma"] != None:
+        suma = score["suma"]
+
+    print(reviews["conteo"])
     return jsonify({
         "title" : api["title"],
         "author": api["author"],
         "year": api["year"],
         "isbn": api["isbn"],
         "review_count": reviews["conteo"],
-        "average_score": score["suma"],
-    }),200
+        "average_score": suma/divisor,
+        }),200
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -139,8 +149,6 @@ def login():
 
         # Query database for username
         rows = db.execute("SELECT * FROM users WHERE username = :username", {'username':username}).fetchall()
-
-        print(rows)
 
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
