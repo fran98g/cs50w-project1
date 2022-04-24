@@ -65,8 +65,9 @@ def book():
     review = request.args.get("review")
     review2 = consultar_libro(request.args.get("isbn"))    
     rating2 = consultar_libro(request.args.get("isbn"))
+    thumb = consultar_libro(request.args.get("isbn"))
     rows3 = db.execute("SELECT * FROM review WHERE id_books =:libroo", {"libroo":libroo}).fetchall()
-    return render_template("book.html", book=rows2, review=rows3, review2=review2, rating2=rating2)
+    return render_template("book.html", book=rows2, review=rows3, review2=review2, rating2=rating2, thumb=thumb)
 
 
 @app.route("/review", methods=["POST"])

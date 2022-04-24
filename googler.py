@@ -20,6 +20,6 @@ def consultar_libro(isbn):
     infob["averagerating"] = info_libro.get("averageRating")
     infob["ratingscount"] = info_libro.get("ratingsCount")
 
-    infob["image"] = info_libro["imageLinks"]["thumbnail"]
+    infob["image"] = info_libro.get("imageLinks")["thumbnail"]
 
     return infob
